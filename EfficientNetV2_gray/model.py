@@ -282,7 +282,7 @@ class EfficientNetV2(nn.Module):
         stem_filter_num = model_cnf[0][4]
 
         self.stem = ConvBNAct(
-            3, stem_filter_num, kernel_size=3, stride=2, norm_layer=norm_layer
+            1, stem_filter_num, kernel_size=3, stride=2, norm_layer=norm_layer
         )  # 激活函数默认是SiLU
 
         total_blocks = sum([i[0] for i in model_cnf])

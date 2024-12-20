@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -5,7 +6,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
 from Data import MyDataset
-from EfficientNetV2.model import efficientnetv2_s
+from EfficientNetV2.model import efficientnetv2
 from Utils import has_log_file, find_max_log
 
 
@@ -19,15 +20,22 @@ def train(args):
     train_set = MyDataset(args.data_root + 'train.txt', num_class=args.num_classes, transforms=transform)
     train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True)
     device = torch.device('cuda:0')
-    model = efficientnetv2_s(num_classes=args.num_classes)
+    model = efficientnetv2(num_classes=args.num_classes, scale=args.scale)
     model.to(device)
     model.train()
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-5)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=2, factor=0.5)
     print("load model...")
 
-    if has_log_file(args.log_root):
+    if os.path.exists(args.log_root + args.model_name):
+        checkpoint = torch.load(args.log_root + args.model_name)
+        model.load_state_dict(checkpoint["model_state_dict"])
+        print("continue training with " + args.model_path + "...")
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        loss = checkpoint['loss']
+        epoch = checkpoint['epoch'] + 1
+    elif has_log_file(args.log_root):
         max_log = find_max_log(args.log_root)
         print("continue training with " + max_log + "...")
         checkpoint = torch.load(max_log)

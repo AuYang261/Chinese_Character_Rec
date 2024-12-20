@@ -3,14 +3,15 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from EfficientNetV2.Evaluate import evaluate
-from EfficientNetV2.Train import train
-from EfficientNetV2.demo import demo
+from EfficientNetV2_gray.Evaluate import evaluate
+from EfficientNetV2_gray.Train import train
+from EfficientNetV2_gray.demo import demo
 from Utils import classes_txt
+from Data import to_gray
 
 parser = argparse.ArgumentParser(description="EfficientNetV2 arguments")
 parser.add_argument(
-    "--mode", dest="mode", type=str, default="evaluate", help="Mode of net"
+    "--mode", dest="mode", type=str, default="train", help="Mode of net"
 )
 parser.add_argument(
     "--epoch", dest="epoch", type=int, default=50, help="Epoch number of training"
@@ -26,13 +27,13 @@ parser.add_argument(
     "--data_root", dest="data_root", type=str, default="../data/", help="Path to data"
 )
 parser.add_argument(
-    "--log_root", dest="log_root", type=str, default="../log/", help="Path to log0.pth"
+    "--log_root", dest="log_root", type=str, default="../log_gray/", help="Path to log0.pth"
 )
 parser.add_argument(
     "--model",
     dest="model_name",
     type=str,
-    default="log49.pth",
+    default=".pth",
     help="Path to model.pth",
 )
 parser.add_argument(
@@ -57,6 +58,16 @@ if __name__ == "__main__":
     args.log_root = args.log_root.replace("log", "log_" + args.scale)
     if not os.path.exists(args.log_root):
         os.makedirs(args.log_root)
+
+    gray_data_root = os.path.join(args.data_root, "gray/")
+    if not os.path.exists(gray_data_root):
+        os.makedirs(gray_data_root)
+        for t in ["train/", "test/"]:
+            for d in os.listdir(args.data_root + t):
+                if os.path.isdir(args.data_root + t + d):
+                    for f in os.listdir(args.data_root + t + d):
+                        to_gray(args.data_root + t + d + "/" + f, gray_data_root + t + d + "/" + f)
+    args.data_root = gray_data_root
         
     if not os.path.exists(args.data_root + "train.txt"):
         classes_txt(

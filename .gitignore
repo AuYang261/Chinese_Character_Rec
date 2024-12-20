@@ -1,4 +1,11 @@
 
 modelVGG19.pt
 modelEffNetV2.pt
-__pycache__/Data.cpython-39.pyc
+__pycache__/
+
+data
+log_*
+*.zip
+*.z[0-9]*?
+.vscode/
+*.log
