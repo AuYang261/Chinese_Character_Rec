@@ -1,4 +1,5 @@
 import os
+import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -6,11 +7,10 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
 from Data import MyDataset
-from EfficientNetV2_gray.model import efficientnetv2
 from Utils import has_log_file, find_max_log
 
 
-def train(args):
+def train(model, args):
     print("===Train EffNetV2===")
     transform = transforms.Compose(
         [
@@ -30,7 +30,6 @@ def train(args):
     )
     train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True)
     device = torch.device("cuda:0")
-    model = efficientnetv2(num_classes=args.num_classes, scale=args.scale)
     model.to(device)
     model.train()
     criterion = nn.CrossEntropyLoss()
@@ -59,7 +58,7 @@ def train(args):
         print("train for the first time...")
         loss = 0.0
         epoch = 0
-
+    sys.stdout.flush()
     while epoch < args.epoch:
         running_loss = 0.0
         for i, data in enumerate(train_loader):
@@ -80,6 +79,7 @@ def train(args):
                         optimizer.state_dict()["param_groups"][0]["lr"],
                     )
                 )
+                sys.stdout.flush()
                 running_loss = 0.0
 
         scheduler.step(loss)
