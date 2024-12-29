@@ -26,7 +26,7 @@ parser.add_argument(
     "--data_root", dest="data_root", type=str, default="./data/", help="Path to data"
 )
 parser.add_argument(
-    "--log_root", dest="log_root", type=str, default="./log_gray/", help="Path to log0.pth"
+    "--log_root", dest="log_root", type=str, default="./log_gray_dropout/", help="Path to log0.pth"
 )
 parser.add_argument(
     "--model",

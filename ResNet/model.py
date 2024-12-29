@@ -1,7 +1,7 @@
 import torch.nn as nn
 from torchvision import models
 
-def resnet(num_classes: int, scale: str):
+def resnet(num_classes: int, scale: str, dropout: float = 0.5) -> nn.Module:
     match scale:
         case "s":
             model = models.resnet18(pretrained=False)
@@ -11,7 +11,10 @@ def resnet(num_classes: int, scale: str):
             model = models.resnet101(pretrained=False)
         case _:
             raise ValueError("Invalid scale")
-    model.fc = nn.Linear(model.fc.in_features, num_classes)
+    model.fc = nn.Sequential(
+        nn.Dropout(dropout),
+        nn.Linear(model.fc.in_features, num_classes)
+    )
     # 修改第一个卷积层
     model.conv1 = nn.Conv2d(
         in_channels=1,  # 单通道输入
